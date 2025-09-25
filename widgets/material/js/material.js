@@ -54,13 +54,23 @@ vis.binds.material = {
         }
 
         if (data.oid) {
-            // subscribe on updates of value
-            vis.states.bind(data.oid + '.val', function (e, newVal, oldVal) {
-                update(newVal);
+            // Load initial value
+            vis.conn.getStates(data.oid, function (err, states) {
+                if (!err && states && states[data.oid]) {
+                    update(states[data.oid].val);
+                }
             });
 
-            // set current value
-            update(vis.states[data.oid + '.val']);
+            // Subscribe to updates
+            vis.conn.subscribe(data.oid, function (val) {
+                update(val);
+            });
+
+            // Also try to get cached value from _data
+            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
+            if (cachedVal !== undefined) {
+                update(cachedVal);
+            }
         }
     },
 	tplMdListWindow: function (widgetID, view, data) {
@@ -85,13 +95,23 @@ vis.binds.material = {
         }    
         
         if (data.oid) {
-            // subscribe on updates of value
-            vis.states.bind(data.oid + '.val', function (e, newVal, oldVal) {
-                update(newVal);
+            // Load initial value
+            vis.conn.getStates(data.oid, function (err, states) {
+                if (!err && states && states[data.oid]) {
+                    update(states[data.oid].val);
+                }
             });
 
-            // set current value
-            update(vis.states[data.oid + '.val']);
+            // Subscribe to updates
+            vis.conn.subscribe(data.oid, function (val) {
+                update(val);
+            });
+
+            // Also try to get cached value from _data
+            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
+            if (cachedVal !== undefined) {
+                update(cachedVal);
+            }
         }
     },
     tplMdListTemp: function (widgetID, view, data) {
@@ -104,28 +124,46 @@ vis.binds.material = {
             }, 100);
         }
         
-        // grey out the value in case the last change is more than 24h ago
-        var curTime = new Date().getTime();
-        var lcTime = vis.states[data.oid + '.lc'];
-        var seconds = (curTime - lcTime) / 1000;
-        if(seconds > 86400){ 
-            $div.find('.md-list-value').css('opacity', '0.5');
+        function checkAge(lcTime) {
+            // grey out the value in case the last change is more than 24h ago
+            var curTime = new Date().getTime();
+            var seconds = (curTime - lcTime) / 1000;
+            if(seconds > 86400){ 
+                $div.find('.md-list-value').css('opacity', '0.5');
+            } else {
+                $div.find('.md-list-value').css('opacity', '1');
+            }
         }
         
-        function update(state){
+        function update(state, lcTime){
             if(typeof state === 'number'){
                 $div.find('.md-list-value').html(state.toFixed(1) + ' °C');
+                if (lcTime !== undefined) {
+                    checkAge(lcTime);
+                }
             }
         }
 
         if (data.oid) {
-            // subscribe on updates of value
-            vis.states.bind(data.oid + '.val', function (e, newVal, oldVal) {
-                update(newVal);
+            // Load initial value
+            vis.conn.getStates(data.oid, function (err, states) {
+                if (!err && states && states[data.oid]) {
+                    update(states[data.oid].val, states[data.oid].lc);
+                }
             });
 
-            // set current value
-            update(vis.states[data.oid + '.val']);
+            // Subscribe to updates
+            vis.conn.subscribe(data.oid, function (val) {
+                const lcTime = vis.states._data && vis.states._data[data.oid + '.lc'];
+                update(val, lcTime);
+            });
+
+            // Also try to get cached value from _data
+            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
+            const cachedLc = vis.states._data && vis.states._data[data.oid + '.lc'];
+            if (cachedVal !== undefined) {
+                update(cachedVal, cachedLc);
+            }
         }
     },
     tplMdListHumid: function (widgetID, view, data) {
@@ -138,28 +176,46 @@ vis.binds.material = {
             }, 100);
         }
         
-        // grey out the value in case the last change is more than 24h ago
-        var curTime = new Date().getTime();
-        var lcTime = vis.states[data.oid + '.lc'];
-        var seconds = (curTime - lcTime) / 1000;
-        if(seconds > 86400){ 
-            $div.find('.md-list-value').css('opacity', '0.5');
+        function checkAge(lcTime) {
+            // grey out the value in case the last change is more than 24h ago
+            var curTime = new Date().getTime();
+            var seconds = (curTime - lcTime) / 1000;
+            if(seconds > 86400){ 
+                $div.find('.md-list-value').css('opacity', '0.5');
+            } else {
+                $div.find('.md-list-value').css('opacity', '1');
+            }
         }
         
-        function update(state){
+        function update(state, lcTime){
             if(typeof state === 'number'){
                 $div.find('.md-list-value').html(state.toFixed(1) + ' %');
+                if (lcTime !== undefined) {
+                    checkAge(lcTime);
+                }
             }
         }
 
         if (data.oid) {
-            // subscribe on updates of value
-            vis.states.bind(data.oid + '.val', function (e, newVal, oldVal) {
-                update(newVal);
+            // Load initial value
+            vis.conn.getStates(data.oid, function (err, states) {
+                if (!err && states && states[data.oid]) {
+                    update(states[data.oid].val, states[data.oid].lc);
+                }
             });
 
-            // set current value
-            update(vis.states[data.oid + '.val']);
+            // Subscribe to updates
+            vis.conn.subscribe(data.oid, function (val) {
+                const lcTime = vis.states._data && vis.states._data[data.oid + '.lc'];
+                update(val, lcTime);
+            });
+
+            // Also try to get cached value from _data
+            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
+            const cachedLc = vis.states._data && vis.states._data[data.oid + '.lc'];
+            if (cachedVal !== undefined) {
+                update(cachedVal, cachedLc);
+            }
         }
     },
 	tplMdListLight: function (widgetID, view, data) {
@@ -190,13 +246,23 @@ vis.binds.material = {
         }
         
         if (data.oid) {
-            // subscribe on updates of value
-            vis.states.bind(data.oid + '.val', function (e, newVal, oldVal) {
-                update(newVal);
+            // Load initial value
+            vis.conn.getStates(data.oid, function (err, states) {
+                if (!err && states && states[data.oid]) {
+                    update(states[data.oid].val);
+                }
             });
 
-            // set current value
-            update(vis.states[data.oid + '.val']);
+            // Subscribe to updates
+            vis.conn.subscribe(data.oid, function (val) {
+                update(val);
+            });
+
+            // Also try to get cached value from _data
+            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
+            if (cachedVal !== undefined) {
+                update(cachedVal);
+            }
         }
     },
 	tplMdListLightDim: function (widgetID, view, data) {
@@ -212,8 +278,10 @@ vis.binds.material = {
         }
 
         function update(state){
-            var src = 'widgets/material/img/light_light_dim_' + Math.ceil(state/10) + '0.png';
-            $div.find('.md-list-icon').find('img').attr('src', src);
+            if (typeof state === 'number') {
+                var src = 'widgets/material/img/light_light_dim_' + Math.ceil(state/10) + '0.png';
+                $div.find('.md-list-icon').find('img').attr('src', src);
+            }
         }
 
         /* if (!vis.editMode) {
@@ -225,13 +293,23 @@ vis.binds.material = {
         } */
         
         if (data.oid) {
-            // subscribe on updates of value
-            vis.states.bind(data.oid + '.val', function (e, newVal, oldVal) {
-                update(newVal);
+            // Load initial value
+            vis.conn.getStates(data.oid, function (err, states) {
+                if (!err && states && states[data.oid]) {
+                    update(states[data.oid].val);
+                }
             });
 
-            // set current value
-            update(vis.states[data.oid + '.val']);
+            // Subscribe to updates
+            vis.conn.subscribe(data.oid, function (val) {
+                update(val);
+            });
+
+            // Also try to get cached value from _data
+            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
+            if (cachedVal !== undefined) {
+                update(cachedVal);
+            }
         }
     },
 	tplMdListShutter: function (widgetID, view, data) {
@@ -247,8 +325,10 @@ vis.binds.material = {
         }
 
         function update(state){
-            var src = 'widgets/material/img/fts_shutter_' + Math.ceil(state/10) + '0.png';
-            $div.find('.md-list-icon').find('img').attr('src', src);
+            if (typeof state === 'number') {
+                var src = 'widgets/material/img/fts_shutter_' + Math.ceil(state/10) + '0.png';
+                $div.find('.md-list-icon').find('img').attr('src', src);
+            }
         }
 
         /* if (!vis.editMode) {
@@ -260,13 +340,23 @@ vis.binds.material = {
         } */
         
         if (data.oid) {
-            // subscribe on updates of value
-            vis.states.bind(data.oid + '.val', function (e, newVal, oldVal) {
-                update(newVal);
+            // Load initial value
+            vis.conn.getStates(data.oid, function (err, states) {
+                if (!err && states && states[data.oid]) {
+                    update(states[data.oid].val);
+                }
             });
 
-            // set current value
-            update(vis.states[data.oid + '.val']);
+            // Subscribe to updates
+            vis.conn.subscribe(data.oid, function (val) {
+                update(val);
+            });
+
+            // Also try to get cached value from _data
+            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
+            if (cachedVal !== undefined) {
+                update(cachedVal);
+            }
         }
     }
 };
