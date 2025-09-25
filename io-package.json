@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "vis-material",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "news": {
-      "0.2.0": {
+      "0.2.1": {
         "en": "Some adapter settings have been fixed.\nSome adaption for a new release have been applied.\nDependencies have been updated.\nfeat: new window shutter widget\nfeat: new humidity widget added",
         "de": "Einige Adaptereinstellungen wurden korrigiert.\nAnpassungen für eine neue Release wurden vorgenommen.\nAbhängigkeiten wurden aktualisiert.\nfeat: neues Jalousien-Widget\nfeat: neues Luftfeuchtigkeits-Widget hinzugefügt",
         "ru": "Некоторые настройки адаптера были исправлены.\nБыли применены некоторые приспособления для нового выпуска.\nЗависимость была обновлена.\nподвиг: новый виджет затвора окон\nподвиг: добавлен новый виджет влажности",
