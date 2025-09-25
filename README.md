@@ -28,7 +28,7 @@ In some installations, the font in the context menu may no longer be readable. T
 
 ## Changelog
 
-### 0.2.0 (2025-01-12)
+### 0.2.1 (2025-01-12)
 
 - (oweitman) Some adapter settings have been fixed.
 - (oweitman) Some adaption for a new release have been applied.
