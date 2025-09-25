@@ -32,6 +32,69 @@ vis.binds.material = {
             vis.binds.material.version = null;
         }
     },
+
+    // VIS-2 Basic Image Refresh Fix - für alle Image Widgets
+    basicImageIntervals: {},
+    
+    fixBasicImageWidgets: function() {
+        console.log('[vis-material] Scanning for Basic Image widgets with refresh intervals');
+        
+        if (!vis.views || !vis.activeView || !vis.views[vis.activeView]) {
+            return;
+        }
+        
+        const widgets = vis.views[vis.activeView].widgets;
+        let fixedCount = 0;
+        
+        Object.keys(widgets).forEach(function(widgetId) {
+            const widget = widgets[widgetId];
+            
+            // Prüfe ob es ein Basic Image Widget mit refreshInterval ist
+            if (widget.tpl === 'tplImage' && 
+                widget.data && 
+                widget.data.refreshInterval && 
+                widget.data.refreshInterval > 0 &&
+                widget.data.src) {
+                
+                console.log('[vis-material] Fixing Basic Image widget:', widgetId, 
+                           'src:', widget.data.src, 
+                           'interval:', widget.data.refreshInterval + 'ms');
+                
+                // Stoppe existierendes Intervall
+                if (vis.binds.material.basicImageIntervals[widgetId]) {
+                    clearInterval(vis.binds.material.basicImageIntervals[widgetId]);
+                }
+                
+                // Starte neues Intervall
+                vis.binds.material.basicImageIntervals[widgetId] = setInterval(function() {
+                    const $img = $('#' + widgetId + ' img');
+                    
+                    if ($img.length && widget.data.src) {
+                        // Cache-Busting mit Timestamp
+                        const separator = widget.data.src.includes('?') ? '&' : '?';
+                        const newUrl = widget.data.src + separator + '_t=' + Date.now();
+                        
+                        $img.attr('src', newUrl);
+                    }
+                }, widget.data.refreshInterval);
+                
+                fixedCount++;
+            }
+        });
+        
+        if (fixedCount > 0) {
+            console.log('%c[vis-material] Fixed ' + fixedCount + ' Basic Image widgets', 'color: #4CAF50; font-weight: bold;');
+        }
+    },
+    
+    cleanupBasicImageIntervals: function() {
+        Object.keys(vis.binds.material.basicImageIntervals).forEach(function(widgetId) {
+            clearInterval(vis.binds.material.basicImageIntervals[widgetId]);
+            delete vis.binds.material.basicImageIntervals[widgetId];
+        });
+        console.log('[vis-material] Cleaned up all Basic Image intervals');
+    },
+
 	tplMdListDoor: function (widgetID, view, data) {
         const srcOpen = 'widgets/material/img/fts_door_open.png';
         const srcClosed = 'widgets/material/img/fts_door.png';
@@ -368,3 +431,21 @@ vis.binds.material = {
 };
 
 vis.binds.material.showVersion();
+
+// Automatischer Start des Basic Image Fix nach dem Laden
+setTimeout(function() {
+    vis.binds.material.fixBasicImageWidgets();
+}, 2000);
+
+// Fix auch bei View-Wechsel
+$(document).on('viewChanged', function() {
+    vis.binds.material.cleanupBasicImageIntervals();
+    setTimeout(function() {
+        vis.binds.material.fixBasicImageWidgets();
+    }, 1000);
+});
+
+// Cleanup bei Page Unload
+$(window).on('beforeunload', function() {
+    vis.binds.material.cleanupBasicImageIntervals();
+});
