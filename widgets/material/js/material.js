@@ -437,13 +437,42 @@ setTimeout(function() {
     vis.binds.material.fixBasicImageWidgets();
 }, 2000);
 
-// Fix auch bei View-Wechsel
+// Fix auch bei View-Wechsel - mehrere Methoden für VIS-2
 $(document).on('viewChanged', function() {
+    console.log('[vis-material] viewChanged event detected');
     vis.binds.material.cleanupBasicImageIntervals();
     setTimeout(function() {
         vis.binds.material.fixBasicImageWidgets();
     }, 1000);
 });
+
+// Zusätzlich: URL Hash-Änderungen überwachen (für #cam, #cam2, etc.)
+let lastHash = window.location.hash;
+setInterval(function() {
+    if (window.location.hash !== lastHash) {
+        console.log('[vis-material] Hash changed from', lastHash, 'to', window.location.hash);
+        lastHash = window.location.hash;
+        
+        vis.binds.material.cleanupBasicImageIntervals();
+        setTimeout(function() {
+            vis.binds.material.fixBasicImageWidgets();
+        }, 1500); // Etwas länger warten bei Hash-Wechsel
+    }
+}, 500); // Prüfe alle 500ms
+
+// Zusätzlich: vis.activeView Änderungen überwachen
+let lastActiveView = vis.activeView;
+setInterval(function() {
+    if (vis.activeView !== lastActiveView) {
+        console.log('[vis-material] activeView changed from', lastActiveView, 'to', vis.activeView);
+        lastActiveView = vis.activeView;
+        
+        vis.binds.material.cleanupBasicImageIntervals();
+        setTimeout(function() {
+            vis.binds.material.fixBasicImageWidgets();
+        }, 1000);
+    }
+}, 500);
 
 // Cleanup bei Page Unload
 $(window).on('beforeunload', function() {
