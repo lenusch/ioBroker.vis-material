@@ -53,24 +53,30 @@ vis.binds.material = {
             $div.find('.md-list-icon').find('img').attr('src', src);
         }
 
-        if (data.oid) {
-            // Load initial value
-            vis.conn.getStates(data.oid, function (err, states) {
-                if (!err && states && states[data.oid]) {
-                    update(states[data.oid].val);
-                }
-            });
-
-            // Subscribe to updates
-            vis.conn.subscribe(data.oid, function (val) {
-                update(val);
-            });
-
-            // Also try to get cached value from _data
-            const cachedVal = vis.states._data && vis.states._data[data.oid + '.val'];
-            if (cachedVal !== undefined) {
-                update(cachedVal);
+        // VIS-2 Fix: OID aus Widget-Konfiguration lesen
+        let oid = data.oid;
+        if (!oid && vis.views && vis.activeView && vis.views[vis.activeView].widgets) {
+            const widget = vis.views[vis.activeView].widgets[widgetID];
+            if (widget && widget.data && widget.data.oid) {
+                oid = widget.data.oid;
             }
+        }
+
+        if (oid) {
+            console.log('[tplMdListDoor] Using OID:', oid);
+            
+            // VIS-1 API (funktioniert in VIS-2)
+            vis.states.bind(oid + '.val', function (e, newVal, oldVal) {
+                console.log('[tplMdListDoor] State changed from', oldVal, 'to', newVal);
+                update(newVal);
+            });
+            
+            // Set initial value
+            const initialVal = vis.states[oid + '.val'];
+            console.log('[tplMdListDoor] Initial value:', initialVal);
+            update(initialVal);
+        } else {
+            console.log('[tplMdListDoor] No OID configured for widget:', widgetID);
         }
     },
 	tplMdListWindow: function (widgetID, view, data) {
