@@ -133,7 +133,11 @@
     "adminUI": {
       "config": "none"
     },
-    "onlyWWW": true,
+    "files": [
+      "widgets",
+      "admin"
+    ],
+    "onlyWWW": false,
     "singleton": true,
     "type": "visualization-widgets",
     "restartAdapters": [
