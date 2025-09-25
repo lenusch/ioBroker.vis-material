@@ -25,10 +25,10 @@ $.extend(true, systemDictionary, {
 });
 
 vis.binds.material = {
-    version: "0.1.5",
+    version: "0.2.1",
     showVersion: function () {
         if (vis.binds.material.version) {
-            console.log('Version material: ' + vis.binds.material.version);
+            console.log('%c[vis-material] Loaded version: ' + vis.binds.material.version, 'color: #03A9F4; font-weight: bold;');
             vis.binds.material.version = null;
         }
     },
